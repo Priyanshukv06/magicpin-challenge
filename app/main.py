@@ -5,8 +5,8 @@ import os
 from datetime import datetime, timezone
 from typing import Any, Literal
 
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI
+from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel, ConfigDict, Field
 
 from app.composer import compose_tick
@@ -23,6 +23,47 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url=None,
 )
+
+LANDING_PAGE = """<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vera Engagement Bot</title>
+  <style>
+    :root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; color: #f7f7fb; background: radial-gradient(circle at top, #43216f 0, #17121f 42%, #0c0a0f 100%); }
+    main { width: min(720px, 100%); padding: 42px; border: 1px solid #ffffff24; border-radius: 22px; background: #151119dd; box-shadow: 0 24px 70px #0008; }
+    .status { display: inline-flex; align-items: center; gap: 8px; padding: 7px 11px; border: 1px solid #64d99155; border-radius: 999px; color: #8af0ad; background: #16332288; font-size: 14px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #63e693; box-shadow: 0 0 14px #63e693; }
+    h1 { margin: 24px 0 10px; font-size: clamp(34px, 7vw, 56px); line-height: 1; letter-spacing: -0.04em; }
+    p { color: #c8c1ce; font-size: 17px; line-height: 1.65; }
+    .links { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+    a { padding: 12px 16px; border-radius: 10px; color: white; text-decoration: none; font-weight: 650; background: #7c3aed; }
+    a.secondary { border: 1px solid #ffffff25; background: #ffffff0c; }
+    .meta { margin-top: 30px; padding-top: 20px; border-top: 1px solid #ffffff18; color: #8f8798; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="status"><span class="dot"></span>Service online</div>
+    <h1>Vera Engagement Bot</h1>
+    <p>A deterministic engagement service that turns versioned category, merchant, customer, and trigger context into safe, relevant actions.</p>
+    <div class="links">
+      <a href="/docs">Explore API</a>
+      <a class="secondary" href="/v1/healthz">Health status</a>
+      <a class="secondary" href="/v1/metadata">Metadata</a>
+    </div>
+    <div class="meta">API version 1.0.0 &middot; Built for reliable context-driven engagement</div>
+  </main>
+</body>
+</html>"""
+
+
+@app.get("/", response_class=HTMLResponse, include_in_schema=False)
+def landing_page():
+    return LANDING_PAGE
 
 
 class ContextRequest(BaseModel):
